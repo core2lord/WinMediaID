@@ -1,0 +1,3 @@
+GetDpiForWindow
+SetWindowPos
+SetWindowLong

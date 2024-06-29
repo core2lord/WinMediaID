@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Application
+    x:Class="WinMediaID.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <!--  Other merged dictionaries here  -->
+            </ResourceDictionary.MergedDictionaries>
+            <!--  Other app resources here  -->
+
+            <Color x:Key="CommandTabViewBackgroundColor">#333333</Color>
+            <SolidColorBrush x:Key="CommandTabViewBackgroundColorBrush" Color="{StaticResource CommandTabViewBackgroundColor}" />
+            <Color x:Key="CommandTypeAreaBackgroundColor">#0C0C0C</Color>
+            <SolidColorBrush x:Key="CommandTypeAreaBackgroundColorBrush" Color="{StaticResource CommandTypeAreaBackgroundColor}" />
+            <Color x:Key="CommandTypeAreaFontColor">#CCCCCC</Color>
+            <SolidColorBrush x:Key="CommandTypeAreaFontColorBrush" Color="{StaticResource CommandTypeAreaFontColor}" />
+            <Color x:Key="CommandTabViewFontColor">#FFFFFF</Color>
+            <SolidColorBrush x:Key="CommandTabViewFontColorBrush" Color="{StaticResource CommandTabViewFontColor}" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

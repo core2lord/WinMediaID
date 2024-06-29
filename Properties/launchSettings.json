@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WinMediaID (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WinMediaID (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
