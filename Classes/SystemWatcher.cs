@@ -1,5 +1,4 @@
-﻿using Microsoft.UI.Dispatching;
-using System;
+﻿using System;
 using System.IO;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -12,79 +11,58 @@ namespace WinMediaID
     {
         #region Fields
 
-        private static readonly DirectoryInfo DInfoLogPath = new(userDesktopPath);
+        private static readonly string _logFileName = $"\\win_media_id_log-{DateTimeOffset.Now.ToLocalTime().ToString("MM%dd%yyyy'T'HH%mm%ss")}.txt";
 
-        private static readonly string logFileName = $"\\win_media_id_log-{DateTimeOffset.Now.ToLocalTime().ToString("MM%dd%yyyy'T'HH%mm%ss")}.txt";
+        private static readonly string _userDesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop, Environment.SpecialFolderOption.None);
 
-        private static readonly string userDesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop, Environment.SpecialFolderOption.None);
+        private static GlobalProperties _globalProperties = App.Properties;
 
-       // private static DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+        private static bool _isWatcherEnumerationComplete = false;
 
-      //  private static GlobalProperties globalProperties = App.Properties;
+        private static bool _isWatcherCanStart = true;
 
-        private static bool isWatcherEnumerationComplete = false;
+        private static DeviceWatcher _devWatcher;
 
-        private static bool isWatcherCanStart = true;
-
-        private static DeviceWatcher WatcherObject;
+        private static bool _isWatcherStopRequested = false;
 
         #endregion Fields
 
         #region Private Methods
 
-    /*    private static async Task AppendLogFileAsync()
+        private static async Task AppendLogFileAsync()
         {
-            if (Directory.Exists(userDesktopPath))
+            if (Directory.Exists(_userDesktopPath))
             {
-                DirectorySecurity directorySecurity = new(userDesktopPath, AccessControlSections.Access | AccessControlSections.Audit);
-                var userAccount = new NTAccount(Environment.UserName);
-                var accessRules = directorySecurity.GetAccessRules(true, true, typeof(NTAccount));
-
-                foreach (FileSystemAccessRule permission in accessRules)
-                {
-                    WriteStatus.UpdateConsoleText($"Checking {userDesktopPath} permissions for {userAccount.ToString()}");
-                    if (permission.AccessControlType == AccessControlType.Allow)
-                    {
-                        await File.AppendAllTextAsync(userDesktopPath + logFileName, StatusMessageLog.StringBuilder.ToString());
-                        WriteStatus.UpdateConsoleText($"Appened log to file\n{{{userDesktopPath}}}");
-                    }
-                    WriteStatus.UpdateConsoleText($"Error writing log to file\n{{{userDesktopPath}}}\nPermissions Error Occured.{permission.AccessControlType.ToString()}");
-                }
-                StatusMessageLog.StringBuilder.Clear();
-            }
-            else
-            {
-                WriteStatus.UpdateConsoleText($"Error creating logfile\n{{{userDesktopPath}}}");
+               await File.AppendAllTextAsync(_userDesktopPath + _logFileName, StatusMessageLog.StringBuilder.ToString());
+               WriteStatus.UpdateConsoleText($"Created/Updated log file.\n{{{_userDesktopPath}}}");
+               StatusMessageLog.StringBuilder.Clear();
             }
         }
-    */
+
         private static void DeviceWatcher_AddedOrUpdated(DeviceWatcher sender, DeviceInformation args)
         {
-            if (isWatcherEnumerationComplete)
+            if (_isWatcherEnumerationComplete)
             {
-                var message = "::Device Added::\n" + args.Name + Environment.NewLine + args.Id + Environment.NewLine + args.Kind + Environment.NewLine + "Rescanning...";
+                var message = $"::Device Added::\n{args.Name}\n{args.Id}\nRescanning...";
                 WriteStatus.UpdateAllText(message, "Rescanning...", "Rescanning...");
-                MainWindow.MediaValidationCheck();
+                App.Main_Window.MediaValidationCheck();
             }
         }
 
         private static void DeviceWatcher_AddedOrUpdated(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            if (isWatcherEnumerationComplete)
+            if (_isWatcherEnumerationComplete)
             {
-                var message = "Device updated\n" + args.Id + Environment.NewLine + args.Kind + Environment.NewLine + "Rescanning...";
+                var message = $"::Device Updated::\n{args.Id}\nRescanning...";
                 WriteStatus.UpdateAllText(message, "Rescanning...", "Rescanning...", true);
-                MainWindow.MediaValidationCheck();
+                App.Main_Window.MediaValidationCheck();
             }
         }
 
         private static void DeviceWatcher_EnumerationCompleted(DeviceWatcher sender, object args)
         {
-            var message = "No valid windows installation media was found(ex. bootable USB storage).";
-            var message2 = $"If the program does not continue automatically upon inserting new media, click the recheck button below.";
-            WriteStatus.UpdateAllText(message, "Waiting for new media...", message2, false);
-            isWatcherEnumerationComplete = true;
-           // Task.Run(() => { AppendLogFileAsync().GetAwaiter(); });
+            _isWatcherEnumerationComplete = true;
+            Task.Run(() => { AppendLogFileAsync().GetAwaiter().GetResult(); });
         }
 
         private static void DeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
@@ -99,56 +77,91 @@ namespace WinMediaID
 
         private static void DeviceWatcher_Stopped(DeviceWatcher sender, object args)
         {
-            isWatcherCanStart = true;
+            _isWatcherCanStart = true;
+            _isWatcherEnumerationComplete = false;
         }
 
-        //private static async Task WaitStartDeviceWatcher()
-        //{
-        //    while (!isWatcherCanStart)
-        //    {
-        //        await Task.Delay(750);
-        //    }
-        //    WatcherObject.Start();
-        //}
-
-        public static void Start()
+        private static bool GetCanStart()
         {
-            WatcherObject = DeviceInformation.CreateWatcher();
-            WatcherObject.Updated += DeviceWatcher_AddedOrUpdated;
-            WatcherObject.EnumerationCompleted += DeviceWatcher_EnumerationCompleted;
-            WatcherObject.Removed += DeviceWatcher_Removed;
-            WatcherObject.Added += DeviceWatcher_AddedOrUpdated;
-            WatcherObject.Stopped += DeviceWatcher_Stopped;
-            int deviceWatcherStartAttempts = 0;
-            int taskDelay = 750;
-            while (!isWatcherCanStart)
+            if (_devWatcher is not null)
             {
-                Task.Delay(taskDelay);
-                WriteStatus.UpdateConsoleText("Waiting to start DeviceWatcher service: Try#" + deviceWatcherStartAttempts++);
+                if (!_isWatcherCanStart && _isWatcherStopRequested)
+                {
+                    int deviceWatcherStartAttempts = 0;
+                    int messageCounter = 0;
+                    int timeOutPeriod = 30;
+                    int taskDelay = 1000;
+                    while (!_isWatcherCanStart)
+                    {
+                        timeOutPeriod--;
+                        Task.Delay(taskDelay);
+                        deviceWatcherStartAttempts++;
+                        messageCounter++;
+                        if (messageCounter > 5)
+                        {
+                            Task.Run(() =>
+                            {
+                                WriteStatus.UpdateConsoleText($"Waiting to start DeviceWatcher service: Attempt#{deviceWatcherStartAttempts}.\nTimeout in {timeOutPeriod} seconds.");
+                            });
+                            messageCounter = 0;
+                        }
+                        if (timeOutPeriod <= 0)
+                        {
+                            WriteStatus.UpdateConsoleText("DeviceWatcher service failed to start within timeout period.");
+                            return false;
+                        }
+                    }
+                    WriteStatus.UpdateConsoleText($"DeviceWatcher service started after::({deviceWatcherStartAttempts}) seconds");
+                    return true;
+                }
+                else if (_isWatcherCanStart && _isWatcherStopRequested)
+                {
+                    if (_devWatcher.Status != (DeviceWatcherStatus.Created | DeviceWatcherStatus.Started))
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                return false;
             }
-            WatcherObject.Start();
-            isWatcherCanStart = false;
-            double timeTotalToStartService = (deviceWatcherStartAttempts * taskDelay / 1000);
-            WriteStatus.UpdateConsoleText("DeviceWatcher service success after::(" + timeTotalToStartService + ") seconds");
+            return true;
+        }
 
+        public static void TryStart()
+        {
+            if (GetCanStart())
+            {
+                _devWatcher = DeviceInformation.CreateWatcher();
+                _devWatcher.Updated += DeviceWatcher_AddedOrUpdated;
+                _devWatcher.EnumerationCompleted += DeviceWatcher_EnumerationCompleted;
+                _devWatcher.Removed += DeviceWatcher_Removed;
+                _devWatcher.Added += DeviceWatcher_AddedOrUpdated;
+                _devWatcher.Stopped += DeviceWatcher_Stopped;
+                _devWatcher.Start();
+                _isWatcherCanStart = false;
+                _isWatcherStopRequested = false;
+            }
         }
 
         public static void Stop()
         {
-            if (WatcherObject.Status != (DeviceWatcherStatus.Stopping | DeviceWatcherStatus.Stopped | DeviceWatcherStatus.Aborted))
+            if (_devWatcher is not null)
             {
-                WatcherObject.Stop();
-                isWatcherEnumerationComplete = false;
-       //       Task.Run(() => { AppendLogFileAsync().GetAwaiter(); });
-            }
-            else
-            {
-                while (WatcherObject.Status == (DeviceWatcherStatus.Stopping | DeviceWatcherStatus.Stopped | DeviceWatcherStatus.Aborted))
+                _isWatcherStopRequested = true;
+                if (_devWatcher.Status != (DeviceWatcherStatus.Stopping | DeviceWatcherStatus.Stopped | DeviceWatcherStatus.Aborted))
                 {
-                    Task.Delay(1000);
-                    WriteStatus.UpdateConsoleText("Attempting to stop the DeviceWatcher service.");
+                    _devWatcher.Stop();
+                    _isWatcherEnumerationComplete = false;
                 }
-                WatcherObject.Stop();
+                else
+                {
+                    while (_devWatcher.Status == (DeviceWatcherStatus.Stopping | DeviceWatcherStatus.Stopped | DeviceWatcherStatus.Aborted))
+                    {
+                        Task.Delay(1000);
+                        WriteStatus.UpdateConsoleText("Attempting to stop the DeviceWatcher service.");
+                    }
+                    _devWatcher.Stop();
+                }
             }
         }
 

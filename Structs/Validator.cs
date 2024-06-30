@@ -18,6 +18,7 @@ namespace WinMediaID
             {
                 _isReadyDrivesArray.AppendLine($"{{{drive.RootDirectory.ToString()}}}");
             }
+            SystemWatcher.Stop();
         }
 
         public bool IsValidWindowsInstallationMedia(out string validatedImagePath)
@@ -41,6 +42,9 @@ namespace WinMediaID
                 WriteStatus.UpdateConsoleText($"No valid installation media found at: {{{isReadyDrive.RootDirectory.ToString()}}}");
             }
             validatedImagePath = null;
+            var message = "No valid windows installation media was found(ex. bootable USB storage).\n";
+            var message2 = $"If the program does not continue automatically upon inserting new media, you can execute a manual recheck using the button below.";
+            WriteStatus.UpdateAllText(message + message2, "Waiting for new media...", "Waiting for new media...", false);
             return false;
         }
 

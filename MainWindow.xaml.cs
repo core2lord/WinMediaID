@@ -16,7 +16,7 @@ public sealed partial class MainWindow : Window
 
     public int WindowHeight { get; set; } = 660;
 
-    public int WindowWidth { get; set; } = 1440;
+    public int WindowWidth { get; set; } = 480;
 
     internal SizeInt32 DisplayPixelsXY { get; private set; }
 
@@ -38,7 +38,7 @@ public sealed partial class MainWindow : Window
         MediaValidationCheck();
     }
 
-    public static void MediaValidationCheck()
+    public void MediaValidationCheck()
     { 
         Validator validator = new();
         if (validator.IsValidWindowsInstallationMedia(out string validatedPath))
@@ -53,8 +53,7 @@ public sealed partial class MainWindow : Window
                 WriteStatus.UpdateConsoleText("Error during path validation occured.");
             }
         }
-   WriteStatus.UpdateAllText("Please insert a valid windows installation media source to continue.","Waiting for valid media","Waiting for media...", false );
-        SystemWatcher.Start();
+        SystemWatcher.TryStart();
     }
 
     private void SetMainWindowParamenters()
@@ -65,13 +64,6 @@ public sealed partial class MainWindow : Window
         AppWindow.ResizeClient(new SizeInt32(WindowWidth, WindowHeight));
         OverlappedPresenter presenter = AppWindow.Presenter as OverlappedPresenter;
         presenter.IsResizable = false;
-    }
-
-    // TODO: Remove Test Button Method
-    private void TestStatusTextButton_Click(object sender, RoutedEventArgs e)
-    {
-        ShowInfoBar("testing big boobies bar");
-        WriteStatus.UpdateConsoleText("testing small boobies");
     }
 
     public void ShowInfoBar(string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, bool isClosable = false)

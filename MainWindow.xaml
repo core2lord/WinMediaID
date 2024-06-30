@@ -29,64 +29,52 @@
                     <ColumnDefinition />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <TabView
-                    x:Name="TabView1"
+             
+                <Border
+                    Grid.Row="1"
+                    Grid.RowSpan="2"
                     Grid.ColumnSpan="2"
-                    IsAddTabButtonVisible="False">
-                    <TabView.Resources>
-                        <ResourceDictionary>
-                            <SolidColorBrush x:Key="TabViewItemHeaderBackgroundSelected" Color="{StaticResource CommandTypeAreaBackgroundColor}" />
-                            <SolidColorBrush x:Key="TabViewItemHeaderBackground" Color="{StaticResource CommandTypeAreaBackgroundColor}" />
-                        </ResourceDictionary>
-                    </TabView.Resources>
-                    <TabView.TabItems>
-                        <TabViewItem
-                            Header="Information Panel"
-                            IsClosable="False"
-                            IsHitTestVisible="False">
-                            <TabViewItem.IconSource>
-                                <SymbolIconSource Symbol="Home" />
-                            </TabViewItem.IconSource>
-                        </TabViewItem>
-                    </TabView.TabItems>
-                </TabView>
-                    <Border
-                        Grid.Row="1"
-                        Grid.RowSpan="2"
-                        Grid.ColumnSpan="2"
-                        BorderBrush="{StaticResource CommandTypeAreaBackgroundColor}"
-                        BorderThickness="2,0,2,2">
-                        <Border Background="{StaticResource CommandTypeAreaBackgroundColor}" BorderThickness="0">
-                            <ScrollViewer
-                                x:Name="TextBoxScrollViewer"
-                                x:FieldModifier="public"
-                                IsZoomInertiaEnabled="False">
-                                <TextBlock
-                                    x:Name="TextBoxConsole"
-                                    Padding="10"
-                                    VerticalAlignment="Stretch"
-                                    FontFamily="Cascadia Mono"
-                                    FontWeight="Bold"
-                                    Foreground="{StaticResource CommandTypeAreaFontColor}"
-                                    Text="{x:Bind GlobalProperties.ConsoleText, Mode=OneWay}"
-                                    TextWrapping="WrapWholeWords"
-                                    UseLayoutRounding="True"
-                                    UseSystemFocusVisuals="True" />
-                            </ScrollViewer>
-                        </Border>
+                    BorderBrush="{StaticResource CommandTypeAreaBackgroundColor}"
+                    BorderThickness="2,0,2,2">
+                    <Border Background="{StaticResource CommandTypeAreaBackgroundColor}" BorderThickness="0">
+                        <ScrollViewer
+                            x:Name="TextBoxScrollViewer"
+                            x:FieldModifier="public"
+                            IsZoomInertiaEnabled="False">
+                            <TextBlock
+                                x:Name="TextBoxConsole"
+                                Padding="10"
+                                VerticalAlignment="Stretch"
+                                FontFamily="Cascadia Mono"
+                                FontWeight="Bold"
+                                Foreground="{StaticResource CommandTypeAreaFontColor}"
+                                Text="{x:Bind GlobalProperties.ConsoleText, Mode=OneWay}"
+                                TextWrapping="WrapWholeWords"
+                                UseLayoutRounding="True"
+                                UseSystemFocusVisuals="True" />
+                        </ScrollViewer>
                     </Border>
-                <StackPanel Grid.Row="3" Margin="4" Padding="5">
+                </Border>
+                <StackPanel
+                    Grid.Row="3"
+                    Margin="4"
+                    Padding="5">
                     <Button x:Name="ButtonRescan" Click="ButtonRescan_Click">Rescan</Button>
                 </StackPanel>
-                <StackPanel
+                <Grid
                     x:Name="SPanelStaticStatusMessage"
-                    Orientation="Horizontal"
                     Grid.Row="3"
                     Grid.Column="1">
-                    <ProgressRing x:Name="PBarRing"
-                                  IsActive="{x:Bind GlobalProperties.IsPRingActive, Mode=OneWay}"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <ProgressRing x:Name="PBarRing" IsActive="{x:Bind GlobalProperties.IsPRingActive, Mode=OneWay}" />
 
-                    <Border Margin="2" Background="#5F000000">
+                    <Border
+                        Grid.Column="1"
+                        Margin="2"
+                        Background="#5F000000">
                         <TextBlock
                             x:Name="StaticStatusMessage"
                             Padding="4"
@@ -99,9 +87,7 @@
                             UseLayoutRounding="True"
                             UseSystemFocusVisuals="True" />
                     </Border>
-
-                </StackPanel>
-
+                </Grid>
                 <Grid
                     Grid.RowSpan="2"
                     Grid.Column="1"
