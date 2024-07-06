@@ -16,12 +16,11 @@ public sealed partial class MainWindow : Window
 
     public int WindowHeight { get; set; } = 660;
 
-    public int WindowWidth { get; set; } = 480;
+    public int WindowWidth { get; set; } = 780;
 
     internal SizeInt32 DisplayPixelsXY { get; private set; }
-
+    OverlappedPresenter OverlappedPresenter { get; set; }
     public static List<InfoBarMessageQueue> InfoBarMessageQueues { get; private set; }
-
 
     public MainWindow()
     {
@@ -31,29 +30,29 @@ public sealed partial class MainWindow : Window
         AppStartup();
     }
 
-    private void AppStartup()
+    private static void AppStartup()
     {
-        ShowInfoBar("Searching for Windows installation media...");
-        GlobalProperties.StaticStatusMessage = "Searching for media";
+        UIStatus.UpdateAllText("Searching for Windows installation media...", "Searching for media", "Searching...");
         MediaValidationCheck();
     }
 
-    public void MediaValidationCheck()
-    { 
-        Validator validator = new();
+    public static void MediaValidationCheck()
+    {
+        LocalMediaValidator validator = new();
         if (validator.IsValidWindowsInstallationMedia(out string validatedPath))
         {
             if (validatedPath is not null)
             {
-                MediaIdCommand.Run(validatedPath);
                 SystemWatcher.Stop();
+                MediaIdCommand.Run(validatedPath);
+                return;
             }
             else
             {
-                WriteStatus.UpdateConsoleText("Error during path validation occured.");
+                UIStatus.UpdateConsoleText("Error during path validation occured.");
             }
         }
-        SystemWatcher.TryStart();
+       SystemWatcher.TryStart();
     }
 
     private void SetMainWindowParamenters()
@@ -62,8 +61,8 @@ public sealed partial class MainWindow : Window
         SetWindowPos(hWnd, default, 0, 0, WindowWidth, WindowHeight,
                      Windows.Win32.UI.WindowsAndMessaging.SET_WINDOW_POS_FLAGS.SWP_NOMOVE | Windows.Win32.UI.WindowsAndMessaging.SET_WINDOW_POS_FLAGS.SWP_NOZORDER);
         AppWindow.ResizeClient(new SizeInt32(WindowWidth, WindowHeight));
-        OverlappedPresenter presenter = AppWindow.Presenter as OverlappedPresenter;
-        presenter.IsResizable = false;
+        OverlappedPresenter = AppWindow.Presenter as OverlappedPresenter;
+        OverlappedPresenter.IsResizable = false;
     }
 
     public void ShowInfoBar(string message, InfoBarSeverity severity = InfoBarSeverity.Informational, bool autoClose = true, bool isClosable = false)
@@ -92,14 +91,20 @@ public sealed partial class MainWindow : Window
 
     private void TimerElasped_HideInfoBar(DispatcherQueueTimer sender, object args)
     {
-        if (GlobalProperties.IsInfoBarOpen)
-        {
-            GlobalProperties.IsInfoBarOpen = false;
-        }
-    } 
+        HideInfoBar();
+    }
 
     private void ButtonRescan_Click(object sender, RoutedEventArgs e)
     {
-        MediaValidationCheck();
+        UIStatus.UpdateConsoleText($"clientSize={AppWindow.ClientSize.Width}x{AppWindow.ClientSize.Height}\nsize={AppWindow.Size.Width}x{AppWindow.Size.Height}");
+        //AppWindow.ResizeClient(WindowWidth, AppWindow.)
+        if (GlobalProperties.IsPRingActive)
+        {
+            UIStatus.ProgressRing.Stop();
+        }
+        else
+        {
+            UIStatus.ProgressRing.Start();
+        }
     }
 }

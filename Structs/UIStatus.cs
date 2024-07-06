@@ -5,40 +5,73 @@ using System.Threading.Tasks;
 
 namespace WinMediaID
 {
-    public struct WriteStatus()
+    public struct UIStatus()
     {
-        private static DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+        private static readonly DispatcherQueue _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
-        private static GlobalProperties globalProperties { get; } = App.Properties;
+        private static readonly GlobalProperties _globalProperties = App.Properties;
 
         private static string _lastStatusMessage;
+
+        public struct ProgressRing()
+        {
+            public static void Start()
+            {
+                if (!_globalProperties.IsPRingActive)
+                {
+                    if (!_dispatcherQueue.TryEnqueue(() =>
+                    {
+                        _globalProperties.IsPRingActive = true;
+                    }))
+                    {
+                        UpdateConsoleText("Error 0x011");
+                    }
+                }
+            }
+
+            public static void Stop()
+            {
+                UpdateConsoleText("Ring to stop\nStatus=" + _globalProperties.IsPRingActive.ToString());
+                if (_globalProperties.IsPRingActive)
+                {
+                    if (!_dispatcherQueue.TryEnqueue(() =>
+                    {
+                        _globalProperties.IsPRingActive = false;
+                    }))
+                    {
+                        UpdateConsoleText("Error 0x011");
+                    }
+                }
+            }
+        }
 
         public static void UpdateAllText(string consoleMessage, string staticMessage, string infoBarMessasge, bool infoBarAutoClose = true)
         {
             if (!string.IsNullOrEmpty(consoleMessage))
             {
-                UpdateConsoleText(consoleMessage);            
+                UpdateConsoleText(consoleMessage);
             }
             if (!string.IsNullOrEmpty(infoBarMessasge))
             {
-                UpdateInfoBarText(infoBarMessasge, infoBarAutoClose);            
+                UpdateInfoBarText(infoBarMessasge, infoBarAutoClose);
             }
             if (!string.IsNullOrEmpty(staticMessage))
             {
                 UpdateStaticText(staticMessage);
             }
         }
+
         public static void UpdateConsoleText(string consoleMessage)
         {
             if (!string.IsNullOrEmpty(consoleMessage))
             {
-                if (dispatcherQueue is null)
+                if (_dispatcherQueue is null)
                 {
                     Push(consoleMessage);
                 }
                 else
                 {
-                    dispatcherQueue.TryEnqueue(() => { Push(consoleMessage); });
+                    _dispatcherQueue.TryEnqueue(() => { Push(consoleMessage); });
                 }
             }
             static void Push(string text)
@@ -46,24 +79,24 @@ namespace WinMediaID
                 var _localDateTime = DateTimeOffset.Now.LocalDateTime.ToString("G", DateTimeFormatInfo.InvariantInfo);
                 _lastStatusMessage = (text ??= "error");
                 var formatMessage = $"\n#[{GlobalProperties.MessageNumber}]. | {{{_localDateTime}}}\n{_lastStatusMessage}\n";
-                globalProperties.ConsoleText += formatMessage;
+                _globalProperties.ConsoleText += formatMessage;
                 StatusMessageLog.StringBuilder.Append(formatMessage);
                 GlobalProperties.MessageNumber++;
                 App.Main_Window.TextBoxScrollViewer.ScrollToVerticalOffset(App.Main_Window.TextBoxScrollViewer.ScrollableHeight);
             }
-
         }
+
         public async static Task UpdateConsoleTextAsync(string consoleMessage)
         {
             if (!string.IsNullOrEmpty(consoleMessage))
             {
-                if (dispatcherQueue is null)
+                if (_dispatcherQueue is null)
                 {
                     await Push(consoleMessage);
                 }
                 else
                 {
-                   dispatcherQueue.TryEnqueue(async()  => { await Push(consoleMessage); });
+                    _dispatcherQueue.TryEnqueue(async () => { await Push(consoleMessage); });
                 }
             }
             static async Task Push(string text)
@@ -71,21 +104,22 @@ namespace WinMediaID
                 var _localDateTime = DateTimeOffset.Now.LocalDateTime.ToString("G", DateTimeFormatInfo.InvariantInfo);
                 _lastStatusMessage = (text ??= "error");
                 var formatMessage = $"\n#[{GlobalProperties.MessageNumber}]. | {{{_localDateTime}}}\n{_lastStatusMessage}\n";
-                await Task.Run(() => { globalProperties.ConsoleText += formatMessage; });
+                await Task.Run(() => { _globalProperties.ConsoleText += formatMessage; });
                 StatusMessageLog.StringBuilder.Append(formatMessage);
                 GlobalProperties.MessageNumber++;
                 App.Main_Window.TextBoxScrollViewer.ScrollToVerticalOffset(App.Main_Window.TextBoxScrollViewer.ScrollableHeight);
             }
         }
+
         public static void UpdateStaticText(string staticStatusMessage)
         {
             if (!string.IsNullOrEmpty(staticStatusMessage))
             {
-                if (dispatcherQueue is null)
+                if (_dispatcherQueue is null)
                 {
                     try
                     {
-                        globalProperties.StaticStatusMessage = staticStatusMessage;
+                        _globalProperties.StaticStatusMessage = staticStatusMessage;
                     }
                     catch (Exception e)
                     {
@@ -94,15 +128,16 @@ namespace WinMediaID
                 }
                 else
                 {
-                    dispatcherQueue.TryEnqueue(() => { globalProperties.StaticStatusMessage = staticStatusMessage; });
+                    _dispatcherQueue.TryEnqueue(() => { _globalProperties.StaticStatusMessage = staticStatusMessage; });
                 }
             }
         }
+
         public static void UpdateInfoBarText(string infoBarMessasge, bool infoBarAutoClose = true)
         {
             if (!string.IsNullOrEmpty(infoBarMessasge))
             {
-                if (dispatcherQueue is null)
+                if (_dispatcherQueue is null)
                 {
                     try
                     {
@@ -115,10 +150,9 @@ namespace WinMediaID
                 }
                 else
                 {
-                    dispatcherQueue.TryEnqueue(() => { App.Main_Window.ShowInfoBar(infoBarMessasge, autoClose: infoBarAutoClose); });
+                    _dispatcherQueue.TryEnqueue(() => { App.Main_Window.ShowInfoBar(infoBarMessasge, autoClose: infoBarAutoClose); });
                 }
             }
         }
-
     }
 }

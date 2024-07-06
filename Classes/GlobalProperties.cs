@@ -16,6 +16,7 @@ public class GlobalProperties : GlobalPropertiesBase
     private bool infoBarIsClosable;
 
     private string staticStatusMessage;
+
     private bool isPRingActive;
 
     public bool IsPRingActive { get => isPRingActive; set => SetProperty(ref isPRingActive ,value, nameof(IsPRingActive)); }
@@ -32,4 +33,6 @@ public class GlobalProperties : GlobalPropertiesBase
     public bool IsInfoBarOpen { get => isInfoBarOpen; set => SetProperty(ref isInfoBarOpen, value, nameof(IsInfoBarOpen)); }
 
     public string ConsoleText { get => commandText; set => SetProperty(ref commandText, value, nameof(ConsoleText)); }
+
+    public ObservableCollection<VisualIsReadyDrive> VisualIsReadyDriveCollection { get; set; } = [];
 }

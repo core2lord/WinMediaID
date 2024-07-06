@@ -31,10 +31,11 @@ namespace WinMediaID
 
         private static async Task AppendLogFileAsync()
         {
+            UIStatus.ProgressRing.Start();
             if (Directory.Exists(_userDesktopPath))
             {
                await File.AppendAllTextAsync(_userDesktopPath + _logFileName, StatusMessageLog.StringBuilder.ToString());
-               WriteStatus.UpdateConsoleText($"Created/Updated log file.\n{{{_userDesktopPath}}}");
+               UIStatus.UpdateConsoleText($"Created/Updated log file.\n{{{_userDesktopPath}}}");
                StatusMessageLog.StringBuilder.Clear();
             }
         }
@@ -44,8 +45,8 @@ namespace WinMediaID
             if (_isWatcherEnumerationComplete)
             {
                 var message = $"::Device Added::\n{args.Name}\n{args.Id}\nRescanning...";
-                WriteStatus.UpdateAllText(message, "Rescanning...", "Rescanning...");
-                App.Main_Window.MediaValidationCheck();
+                UIStatus.UpdateAllText(message, "Rescanning...", "Rescanning...");
+                MainWindow.MediaValidationCheck();
             }
         }
 
@@ -54,21 +55,22 @@ namespace WinMediaID
             if (_isWatcherEnumerationComplete)
             {
                 var message = $"::Device Updated::\n{args.Id}\nRescanning...";
-                WriteStatus.UpdateAllText(message, "Rescanning...", "Rescanning...", true);
-                App.Main_Window.MediaValidationCheck();
+                UIStatus.UpdateAllText(message, "Rescanning...", "Rescanning...", true);
+                MainWindow.MediaValidationCheck();
             }
         }
 
         private static void DeviceWatcher_EnumerationCompleted(DeviceWatcher sender, object args)
         {
             _isWatcherEnumerationComplete = true;
+            UIStatus.ProgressRing.Stop();
             Task.Run(() => { AppendLogFileAsync().GetAwaiter().GetResult(); });
         }
 
         private static void DeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
             var message = $"A device was removed.";
-            WriteStatus.UpdateConsoleText(message);
+            UIStatus.UpdateConsoleText(message);
         }
 
         #endregion Private Methods
@@ -101,17 +103,19 @@ namespace WinMediaID
                         {
                             Task.Run(() =>
                             {
-                                WriteStatus.UpdateConsoleText($"Waiting to start DeviceWatcher service: Attempt#{deviceWatcherStartAttempts}.\nTimeout in {timeOutPeriod} seconds.");
+                                UIStatus.UpdateConsoleText($"Waiting to start DeviceWatcher service: Attempt#{deviceWatcherStartAttempts}.\nTimeout in {timeOutPeriod} seconds.");
                             });
                             messageCounter = 0;
                         }
                         if (timeOutPeriod <= 0)
                         {
-                            WriteStatus.UpdateConsoleText("DeviceWatcher service failed to start within timeout period.");
+                            UIStatus.UpdateConsoleText("DeviceWatcher service failed to restart within timeout period.");
+                            UIStatus.ProgressRing.Stop();
                             return false;
                         }
                     }
-                    WriteStatus.UpdateConsoleText($"DeviceWatcher service started after::({deviceWatcherStartAttempts}) seconds");
+                    UIStatus.UpdateConsoleText($"DeviceWatcher service started after::({deviceWatcherStartAttempts}) seconds");
+                    UIStatus.ProgressRing.Stop();
                     return true;
                 }
                 else if (_isWatcherCanStart && _isWatcherStopRequested)
@@ -131,6 +135,7 @@ namespace WinMediaID
         {
             if (GetCanStart())
             {
+                UIStatus.ProgressRing.Start();
                 _devWatcher = DeviceInformation.CreateWatcher();
                 _devWatcher.Updated += DeviceWatcher_AddedOrUpdated;
                 _devWatcher.EnumerationCompleted += DeviceWatcher_EnumerationCompleted;
@@ -151,15 +156,19 @@ namespace WinMediaID
                 if (_devWatcher.Status != (DeviceWatcherStatus.Stopping | DeviceWatcherStatus.Stopped | DeviceWatcherStatus.Aborted))
                 {
                     _devWatcher.Stop();
+                    UIStatus.ProgressRing.Stop();
                     _isWatcherEnumerationComplete = false;
                 }
                 else
                 {
                     while (_devWatcher.Status == (DeviceWatcherStatus.Stopping | DeviceWatcherStatus.Stopped | DeviceWatcherStatus.Aborted))
                     {
+                        _globalProperties.IsPRingActive = true;
+
                         Task.Delay(1000);
-                        WriteStatus.UpdateConsoleText("Attempting to stop the DeviceWatcher service.");
+                        UIStatus.UpdateConsoleText("Attempting to stop the DeviceWatcher service.");
                     }
+                    UIStatus.ProgressRing.Stop();
                     _devWatcher.Stop();
                 }
             }

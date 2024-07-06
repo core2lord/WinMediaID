@@ -1,15 +1,11 @@
-﻿using Microsoft.UI.Dispatching;
-using System;
+﻿using System;
 using System.Diagnostics;
+using System.Text;
 
 namespace WinMediaID
 {
     static class MediaIdCommand
     {
-        private static DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-
-        private static GlobalProperties globalProperties = App.Properties;
-
         public static void Run(string validatedSourcePath)
         {
             try
@@ -43,14 +39,25 @@ namespace WinMediaID
                 // Get the output into a string
                 string result = activeProcess.StandardOutput.ReadToEnd();
 
+                var trimmedResult = result.Remove(0, 122);
+
+                StringBuilder stringBuilder = new();
+                stringBuilder.AppendLine("Index,Name,Size,");
+                string[] splitStrings = trimmedResult.Split(":", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                foreach (var item in splitStrings)
+                {
+                    UIStatus.UpdateConsoleText(item);
+                }
+
                 // Display the command output.
-       //         WriteStatusUpdate(result, "Finished", "Results shown in window.", true);
+                // UIStatus.UpdateAllText(trimmedResult, "Results shown in window.", "Finished");
+                UIStatus.ProgressRing.Stop();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-           //     WriteStatus.Update($"{e.InnerException}\n{e.Message}", "Error", "Error Occured", true);
+                e = new();
+                UIStatus.UpdateAllText($"{e.InnerException}\n{e.Message}", "Error", "Error Occured", true);
             }
         }
-
     }
 }
