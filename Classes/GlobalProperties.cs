@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 
 namespace WinMediaID;
 
-public class GlobalProperties : GlobalPropertiesBase
+public partial class GlobalProperties : GlobalPropertiesBase
 {
     private string commandText;
 
@@ -19,7 +19,8 @@ public class GlobalProperties : GlobalPropertiesBase
 
     private bool isPRingActive;
 
-    public bool IsPRingActive { get => isPRingActive; set => SetProperty(ref isPRingActive ,value, nameof(IsPRingActive)); }
+    public bool IsPRingActive { get => isPRingActive; set => SetProperty(ref isPRingActive, value, nameof(IsPRingActive)); }
+
     public static int MessageNumber { get; set; }
 
     public string StaticStatusMessage { get => staticStatusMessage; set => SetProperty(ref staticStatusMessage, value, nameof(StaticStatusMessage)); }

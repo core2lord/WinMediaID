@@ -50,7 +50,8 @@ namespace WinMediaID
                 }
 
                 // Display the command output.
-                // UIStatus.UpdateAllText(trimmedResult, "Results shown in window.", "Finished");
+                // UIStatus.UpdateAllText(trimmedResult, "Results shown in
+                // window.", "Finished");
                 UIStatus.ProgressRing.Stop();
             }
             catch (Exception e)

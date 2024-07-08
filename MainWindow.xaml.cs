@@ -19,7 +19,9 @@ public sealed partial class MainWindow : Window
     public int WindowWidth { get; set; } = 780;
 
     internal SizeInt32 DisplayPixelsXY { get; private set; }
+
     OverlappedPresenter OverlappedPresenter { get; set; }
+
     public static List<InfoBarMessageQueue> InfoBarMessageQueues { get; private set; }
 
     public MainWindow()
@@ -28,6 +30,22 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         SetMainWindowParamenters();
         AppStartup();
+        ApplyUserDriveIgnoreList();
+    }
+
+    private void ApplyUserDriveIgnoreList()
+    {
+        var ignoreList = GlobalProperties.UserAppDataSettings.GetDrivesOnIgnoredList();
+        if (ignoreList is not null)
+        {
+            foreach (var item in ignoreList)
+            {
+                if (item.Key != null && item.Value != null)
+                {
+                    GlobalProperties.UserAppDataSettings.AddDriveToIgnoreList(item.Key, item.Value.ToString());
+                }
+            }
+        }
     }
 
     private static void AppStartup()
@@ -52,7 +70,7 @@ public sealed partial class MainWindow : Window
                 UIStatus.UpdateConsoleText("Error during path validation occured.");
             }
         }
-       SystemWatcher.TryStart();
+        SystemWatcher.TryStart();
     }
 
     private void SetMainWindowParamenters()
@@ -97,6 +115,7 @@ public sealed partial class MainWindow : Window
     private void ButtonRescan_Click(object sender, RoutedEventArgs e)
     {
         UIStatus.UpdateConsoleText($"clientSize={AppWindow.ClientSize.Width}x{AppWindow.ClientSize.Height}\nsize={AppWindow.Size.Width}x{AppWindow.Size.Height}");
+
         //AppWindow.ResizeClient(WindowWidth, AppWindow.)
         if (GlobalProperties.IsPRingActive)
         {
@@ -105,6 +124,29 @@ public sealed partial class MainWindow : Window
         else
         {
             UIStatus.ProgressRing.Start();
+        }
+    }
+
+    private void DriveListGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var addIgnore = e.AddedItems;
+        var removeIgnore = e.RemovedItems;
+
+        if (addIgnore.Count > 0)
+        {
+            for (int i = 0; i < addIgnore.Count; i++)
+            {
+                var item = addIgnore[i] as VisualIsReadyDrive;
+                GlobalProperties.UserAppDataSettings.AddDriveToIgnoreList(item.RootDirectoryLetter.ToString(), item.DriveInfoType.ToString());
+            }
+        }
+        if (removeIgnore.Count > 0)
+        {
+            for (int i = 0; i < removeIgnore.Count; i++)
+            {
+                var item = removeIgnore[i] as VisualIsReadyDrive;
+                GlobalProperties.UserAppDataSettings.RemoveDriveFromIgnoreList(item.RootDirectoryLetter.ToString());
+            }
         }
     }
 }

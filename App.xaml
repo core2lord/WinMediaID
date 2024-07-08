@@ -11,6 +11,8 @@
                 <!--  Other merged dictionaries here  -->
             </ResourceDictionary.MergedDictionaries>
             <!--  Other app resources here  -->
+            <Color x:Key="UIStatusesBackgroundColor">#5F000000</Color>
+            <SolidColorBrush x:Key="UIStatusesBackgroundColorBrush" Color="{StaticResource CommandTabViewBackgroundColor}" />
 
             <Color x:Key="CommandTabViewBackgroundColor">#333333</Color>
             <SolidColorBrush x:Key="CommandTabViewBackgroundColorBrush" Color="{StaticResource CommandTabViewBackgroundColor}" />

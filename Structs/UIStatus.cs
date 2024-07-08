@@ -1,7 +1,6 @@
 ﻿using Microsoft.UI.Dispatching;
 using System;
 using System.Globalization;
-using System.Threading.Tasks;
 
 namespace WinMediaID
 {
@@ -86,30 +85,30 @@ namespace WinMediaID
             }
         }
 
-        public async static Task UpdateConsoleTextAsync(string consoleMessage)
-        {
-            if (!string.IsNullOrEmpty(consoleMessage))
-            {
-                if (_dispatcherQueue is null)
-                {
-                    await Push(consoleMessage);
-                }
-                else
-                {
-                    _dispatcherQueue.TryEnqueue(async () => { await Push(consoleMessage); });
-                }
-            }
-            static async Task Push(string text)
-            {
-                var _localDateTime = DateTimeOffset.Now.LocalDateTime.ToString("G", DateTimeFormatInfo.InvariantInfo);
-                _lastStatusMessage = (text ??= "error");
-                var formatMessage = $"\n#[{GlobalProperties.MessageNumber}]. | {{{_localDateTime}}}\n{_lastStatusMessage}\n";
-                await Task.Run(() => { _globalProperties.ConsoleText += formatMessage; });
-                StatusMessageLog.StringBuilder.Append(formatMessage);
-                GlobalProperties.MessageNumber++;
-                App.Main_Window.TextBoxScrollViewer.ScrollToVerticalOffset(App.Main_Window.TextBoxScrollViewer.ScrollableHeight);
-            }
-        }
+        //public async static Task UpdateConsoleTextAsync(string consoleMessage)
+        //{
+        //    if (!string.IsNullOrEmpty(consoleMessage))
+        //    {
+        //        if (_dispatcherQueue is null)
+        //        {
+        //            await Push(consoleMessage);
+        //        }
+        //        else
+        //        {
+        //            _dispatcherQueue.TryEnqueue(async () => { await Push(consoleMessage); });
+        //        }
+        //    }
+        //    static async Task Push(string text)
+        //    {
+        //        var _localDateTime = DateTimeOffset.Now.LocalDateTime.ToString("G", DateTimeFormatInfo.InvariantInfo);
+        //        _lastStatusMessage = (text ??= "error");
+        //        var formatMessage = $"\n#[{GlobalProperties.MessageNumber}]. | {{{_localDateTime}}}\n{_lastStatusMessage}\n";
+        //        await Task.Run(() => { _globalProperties.ConsoleText += formatMessage; });
+        //        StatusMessageLog.StringBuilder.Append(formatMessage);
+        //        GlobalProperties.MessageNumber++;
+        //        App.Main_Window.TextBoxScrollViewer.ScrollToVerticalOffset(App.Main_Window.TextBoxScrollViewer.ScrollableHeight + 10);
+        //    }
+        //}
 
         public static void UpdateStaticText(string staticStatusMessage)
         {

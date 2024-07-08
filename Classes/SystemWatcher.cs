@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 
@@ -34,9 +32,9 @@ namespace WinMediaID
             UIStatus.ProgressRing.Start();
             if (Directory.Exists(_userDesktopPath))
             {
-               await File.AppendAllTextAsync(_userDesktopPath + _logFileName, StatusMessageLog.StringBuilder.ToString());
-               UIStatus.UpdateConsoleText($"Created/Updated log file.\n{{{_userDesktopPath}}}");
-               StatusMessageLog.StringBuilder.Clear();
+                await File.AppendAllTextAsync(_userDesktopPath + _logFileName, StatusMessageLog.StringBuilder.ToString());
+                UIStatus.UpdateConsoleText($"Created/Updated log file.\n{{{_userDesktopPath}}}");
+                StatusMessageLog.StringBuilder.Clear();
             }
         }
 

@@ -1,5 +1,4 @@
-﻿using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
+﻿using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,7 +26,7 @@ namespace WinMediaID
                 var rootDirectoryString = drive.RootDirectory.ToString();
                 _isReadyDriveInfoCollection.Add(drive);
                 _isReadyRootDirectoryAsStringCollection.AppendLine($"{{{rootDirectoryString}}}");
-                var addToUI = new VisualIsReadyDrive(rootDirectoryString, drive.DriveType );
+                var addToUI = new VisualIsReadyDrive(rootDirectoryString, drive.DriveType);
                 _globalProperties.VisualIsReadyDriveCollection.Add(addToUI);
             }
         }
@@ -82,54 +81,20 @@ namespace WinMediaID
 
     public class VisualIsReadyDrive
     {
-        private DriveType driveInfoType;
-
         public VisualIsReadyDrive(string rootDirectory, DriveType driveInfoType)
         {
-            RootDirectory = rootDirectory;
+            var tempString = rootDirectory.Remove(1);
+            RootDirectoryLetter = tempString;
+            RootDirectoryDisplay = $"({tempString}:)";
             DriveInfoType = driveInfoType;
         }
 
-        public string RootDirectory { get; set; }
-        public SolidColorBrush BackgroundStatus { get; set; } = new SolidColorBrush(new Color() { R=189, G=69, B=79}  );
-        public string ConvertedDriveTypeString { get; private set; }
+        public string RootDirectoryLetter { get; set; }
 
-        public DriveType DriveInfoType
-        {
-            get
-            {
-                return driveInfoType;
-            }
-            set
-            {
-                switch (value)
-                {
-                    case DriveType.Unknown:
-                        { ConvertedDriveTypeString = "Other\\Unknown Drive"; }
-                        break;
-                    case DriveType.NoRootDirectory:
-                        { ConvertedDriveTypeString = "Invalid Drive"; }
-                        break;
-                    case DriveType.Removable:
-                        { ConvertedDriveTypeString = "USB\\Flash Drive"; }
-                        break;
-                    case DriveType.Fixed:
-                        { ConvertedDriveTypeString = "Local Disk Drive"; }
-                        break;
-                    case DriveType.Network:
-                        { ConvertedDriveTypeString = "Network Drive"; }
-                        break;
-                    case DriveType.CDRom:
-                        { ConvertedDriveTypeString = "CD\\DVD\\BD Drive"; }
-                        break;
-                    case DriveType.Ram:
-                        { ConvertedDriveTypeString = "RAM Drive"; }
-                        break;
-                    default:
-                        break;
-                }
-                driveInfoType = value;
-            }
-        }
+        public string RootDirectoryDisplay { get; set; }
+
+        public Brush BackgroundStatusColor { get; set; } = new SolidColorBrush(new Color() { A = 100, R = 189, G = 69, B = 79 });
+
+        public DriveType DriveInfoType { get; set; }
     }
 }
