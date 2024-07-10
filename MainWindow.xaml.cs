@@ -117,14 +117,6 @@ public sealed partial class MainWindow : Window
         UIStatus.UpdateConsoleText($"clientSize={AppWindow.ClientSize.Width}x{AppWindow.ClientSize.Height}\nsize={AppWindow.Size.Width}x{AppWindow.Size.Height}");
 
         //AppWindow.ResizeClient(WindowWidth, AppWindow.)
-        if (GlobalProperties.IsPRingActive)
-        {
-            UIStatus.ProgressRing.Stop();
-        }
-        else
-        {
-            UIStatus.ProgressRing.Start();
-        }
     }
 
     private void DriveListGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)

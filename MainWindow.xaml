@@ -23,7 +23,7 @@
                     <RowDefinition Height="auto" />
                     <RowDefinition />
                     <RowDefinition />
-                    <RowDefinition />
+                    <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
@@ -36,9 +36,9 @@
                     Grid.Row="1"
                     Grid.RowSpan="2"
                     Grid.ColumnSpan="2"
-                    BorderBrush="{StaticResource CommandTypeAreaBackgroundColor}"
+                    BorderBrush="{StaticResource UIStatusBackgroundColor}"
                     BorderThickness="2,0,2,2">
-                    <Border Background="{StaticResource CommandTypeAreaBackgroundColor}" BorderThickness="0">
+                    <Border Background="{StaticResource UIStatusBoxBackgroundColor}" BorderThickness="0">
                         <ScrollViewer
                             x:Name="TextBoxScrollViewer"
                             x:FieldModifier="public"
@@ -49,7 +49,7 @@
                                 VerticalAlignment="Stretch"
                                 FontFamily="Cascadia Mono"
                                 FontWeight="Bold"
-                                Foreground="{StaticResource CommandTypeAreaFontColor}"
+                                Foreground="{StaticResource UIStatusBoxFontColor}"
                                 IsTextSelectionEnabled="True"
                                 Text="{x:Bind GlobalProperties.ConsoleText, Mode=OneWay}"
                                 TextWrapping="WrapWholeWords"
@@ -75,19 +75,18 @@
                     <ProgressRing
                         x:Name="PBarRing"
                         Foreground="DimGray"
-                        IsActive="{x:Bind GlobalProperties.IsPRingActive, Mode=OneWay}" />
-
+                        IsActive="{x:Bind GlobalProperties.IsPRingActive, Mode=TwoWay}" />
                     <Border
                         Grid.Column="1"
                         Margin="2"
-                        Background="{StaticResource UIStatusesBackgroundColor}">
+                        Background="{StaticResource UIStatusBackgroundColor}">
                         <TextBlock
                             x:Name="StaticStatusMessage"
                             Padding="4"
                             HorizontalAlignment="Right"
                             FontFamily="Cascadia Mono"
                             FontWeight="Bold"
-                            Foreground="{StaticResource CommandTabViewFontColor}"
+                            Foreground="{StaticResource UIStatusBoxFontColor}"
                             IsTextSelectionEnabled="True"
                             Text="{x:Bind GlobalProperties.IsPRingActive, Mode=OneWay}"
                             TextWrapping="WrapWholeWords"
@@ -120,54 +119,53 @@
                 </Grid>
                 <StackPanel Grid.Row="4" Grid.ColumnSpan="2">
                     <TextBlock Text="Select any drives you would like to skip in any future scans." />
-                    <ScrollViewer >
-                    <GridView
-                        x:Name="DriveListGrid"
-                        Margin="3"
-                        Padding="4"
-                        MaxHeight="150"
-                        Background="{StaticResource UIStatusesBackgroundColor}"
-                        IsItemClickEnabled="False"
-                        ItemsSource="{x:Bind GlobalProperties.VisualIsReadyDriveCollection, Mode=OneWay}"
-                        SelectionChanged="DriveListGrid_SelectionChanged"
-                        SelectionMode="Multiple">
-                        <GridView.Transitions>
-                            <TransitionCollection>
-                                <AddDeleteThemeTransition />
-                                <ReorderThemeTransition />
-                            </TransitionCollection>
-                        </GridView.Transitions>
-                        <GridView.ItemTemplate>
-                            <DataTemplate x:Name="ReadyDrivesGrid" x:DataType="local:VisualIsReadyDrive">
-                                <ItemContainer MinWidth="80" MinHeight="60">
-                                        
-                                    <Grid Padding="3 7 7 7" Background="{x:Bind BackgroundStatusColor}">
-                                        <Image Source="pack://application:,,,/Assets/WinMediaId-DriveIcon.png" Stretch="UniformToFill" />
-                                        <StackPanel>
-                                            <TextBlock
-                                                FontFamily="Cascadia Mono"
-                                                Margin="0 0 20 5"
-                                                FontSize="14"
-                                                FontWeight="SemiBold"
-                                                Text="{x:Bind RootDirectoryDisplay}" />
-                                            <TextBlock
-                                                FontFamily="Cascadia Mono"
-                                                FontSize="12"
-                                                FontWeight="Normal"
-                                                Text="{x:Bind DriveInfoType}" />
-                                            <TextBlock
-                                                FontFamily="Cascadia Mono"
-                                                FontSize="12"
-                                                FontWeight="Normal"
-                                                Text="Drive" />
-                                        </StackPanel>
-                                    </Grid>
+                    <ScrollViewer>
+                        <GridView
+                            x:Name="DriveListGrid"
+                            MaxHeight="150"
+                            Margin="3"
+                            Padding="4"
+                            Background="{StaticResource UIStatusBackgroundColor}"
+                            IsItemClickEnabled="False"
+                            ItemsSource="{x:Bind GlobalProperties.VisualIsReadyDriveCollection, Mode=OneWay}"
+                            SelectionChanged="DriveListGrid_SelectionChanged"
+                            SelectionMode="Multiple">
+                            <GridView.Transitions>
+                                <TransitionCollection>
+                                    <AddDeleteThemeTransition />
+                                    <ReorderThemeTransition />
+                                </TransitionCollection>
+                            </GridView.Transitions>
+                            <GridView.ItemTemplate>
+                                <DataTemplate x:Name="ReadyDrivesGrid" x:DataType="local:VisualIsReadyDrive">
+                                    <ItemContainer MinWidth="80" MinHeight="60">
+                                        <Grid Padding="3,7,7,7" Background="{x:Bind BackgroundStatusColor}">
+                                            
+                                            <StackPanel>
+                                                <Image Source="../Assets/2HDD-Icon_1@2x.png" />
+                                                <TextBlock
+                                                    Margin="0,0,20,5"
+                                                    FontFamily="Cascadia Mono"
+                                                    FontSize="14"
+                                                    FontWeight="SemiBold"
+                                                    Text="{x:Bind RootDirectoryDisplay}" />
+                                                <TextBlock
+                                                    FontFamily="Cascadia Mono"
+                                                    FontSize="12"
+                                                    FontWeight="Normal"
+                                                    Text="{x:Bind DriveInfoType}" />
+                                                <TextBlock
+                                                    FontFamily="Cascadia Mono"
+                                                    FontSize="12"
+                                                    FontWeight="Normal"
+                                                    Text="Drive" />
+                                            </StackPanel>
+                                        </Grid>
                                     </ItemContainer>
-                            </DataTemplate>
-                        </GridView.ItemTemplate>
-                    </GridView>
+                                </DataTemplate>
+                            </GridView.ItemTemplate>
+                        </GridView>
                     </ScrollViewer>
-
                 </StackPanel>
             </Grid>
         </Grid>

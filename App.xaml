@@ -11,17 +11,14 @@
                 <!--  Other merged dictionaries here  -->
             </ResourceDictionary.MergedDictionaries>
             <!--  Other app resources here  -->
-            <Color x:Key="UIStatusesBackgroundColor">#5F000000</Color>
-            <SolidColorBrush x:Key="UIStatusesBackgroundColorBrush" Color="{StaticResource CommandTabViewBackgroundColor}" />
-
-            <Color x:Key="CommandTabViewBackgroundColor">#333333</Color>
-            <SolidColorBrush x:Key="CommandTabViewBackgroundColorBrush" Color="{StaticResource CommandTabViewBackgroundColor}" />
-            <Color x:Key="CommandTypeAreaBackgroundColor">#0C0C0C</Color>
-            <SolidColorBrush x:Key="CommandTypeAreaBackgroundColorBrush" Color="{StaticResource CommandTypeAreaBackgroundColor}" />
-            <Color x:Key="CommandTypeAreaFontColor">#CCCCCC</Color>
-            <SolidColorBrush x:Key="CommandTypeAreaFontColorBrush" Color="{StaticResource CommandTypeAreaFontColor}" />
-            <Color x:Key="CommandTabViewFontColor">#FFFFFF</Color>
-            <SolidColorBrush x:Key="CommandTabViewFontColorBrush" Color="{StaticResource CommandTabViewFontColor}" />
+            <Color x:Key="UIStatusBackgroundColor">#5F000000</Color>
+            <SolidColorBrush x:Key="UIStatusBackgroundColorBrush" Color="{StaticResource UIStatusBackgroundColor}" />
+            <Color x:Key="UIProgressRingBackgroundColor">#5F000000</Color>
+            <SolidColorBrush x:Key="UIProgressRingBackgroundColorBrush" Color="{StaticResource UIProgressRingBackgroundColor}" />
+            <Color x:Key="UIStatusBoxBackgroundColor">#0C0C0C</Color>
+            <SolidColorBrush x:Key="UIStatusBoxBackgroundColorBrush" Color="{StaticResource UIStatusBoxAreaBackgroundColor}" />
+            <Color x:Key="UIStatusBoxFontColor">#CCCCCC</Color>
+            <SolidColorBrush x:Key="UIStatusBoxFontColorBrush" Color="{StaticResource UIStatusBoxFontColor}" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

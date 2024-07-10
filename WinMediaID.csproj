@@ -14,7 +14,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="Assets\Wide310x150Logo.scale-200.png" />
-    <Content Remove="Assets\WinMediaId-DriveIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Assets\2HDD-Icon_1%402x.png" />
+    <None Remove="Pages\TestPage.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,11 +49,6 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\WinMediaId-DriveIcon.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -62,6 +60,11 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Pages\TestPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <!--
